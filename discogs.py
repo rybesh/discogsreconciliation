@@ -17,10 +17,8 @@ import time
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-# Load Discogs API token from config.json
-with open('apikey.json', 'r') as config_file:
-    config = json.load(config_file)
-    personal_token = config['discogs_api_token']
+# Discogs API credentials
+personal_token = 'YOUR_DISCOGS_API_TOKEN'
 
 # Discogs API base URL
 api_base_url = 'https://api.discogs.com/database/search'
