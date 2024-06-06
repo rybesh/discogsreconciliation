@@ -35,6 +35,8 @@ rate_limit_reset_time = 60  # Initial assumption, will be updated based on heade
 # Service metadata
 metadata = {
     "name": "Discogs Reconciliation Service",
+    "identifierSpace": "http://www.discogs.com/",
+    "schemaSpace": "http://www.schema.org/",
     "defaultTypes": [
         {"id": "/discogs/artist", "name": "Artist"},
         {"id": "/discogs/release", "name": "Release"},
@@ -43,8 +45,13 @@ metadata = {
         {"id": "/discogs/track", "name": "Track"},
         {"id": "/discogs/genre", "name": "Genre"},
         {"id": "/discogs/style", "name": "Style"},
+        {"id": "/discogs/country", "name": "Country"},
         {"id": "/discogs/year", "name": "Year"},
-        {"id": "/discogs/catno", "name": "Catalog Number"}
+        {"id": "/discogs/format", "name": "Format"},
+        {"id": "/discogs/catno", "name": "Catalog Number"},
+        {"id": "/discogs/barcode", "name": "Barcode"},
+        {"id": "/discogs/submitter", "name": "Submitter"},
+        {"id": "/discogs/contributor", "name": "Contributor"}
     ],
     "view": {
         "url": "{{id}}"
@@ -134,13 +141,13 @@ def search(query, query_type='/discogs/artist'):
         discogs_id = item.get('id')
         discogs_uri = make_uri(entity_type, discogs_id)
         catno = item.get('catno', 'N/A')
-        score = fuzz.token_sort_ratio(query, name)
-        if query.lower() == name.lower():
+        score = fuzz.token_sort_ratio(query, name) if name else 0
+        if name and query.lower() == name.lower():
             match = True
 
         resource = {
             "id": discogs_uri,
-            "name": name,
+            "name": name or 'Unknown',
             "score": score,
             "match": match,
             "type": [{"id": query_type_meta["id"], "name": query_type_meta["name"]}],
@@ -209,13 +216,14 @@ def preview(entity_type, discogs_id):
         preview_html = f"""
         <html>
         <body>
-            <h1>{details.get('title', 'No Title')}</h1>
-            <p><strong>Artist:</strong> {artist_names}</p>
-            <p><strong>Label:</strong> {label_names}</p>
+           <h1>{details.get('title', 'No Title')}</h1>
+           	<p><strong>Artist:</strong> {artist_names}</p>
+           	<p><strong>Label:</strong> {label_names}</p>
             <p><strong>Catalog Number:</strong> {catno}</p>
             <p><strong>Year:</strong> {details.get('year', 'Unknown')}</p>
             <p><strong>Genres:</strong> {', '.join(details.get('genres', []))}</p>
-            <p><strong>Styles:</strong> {', '.join(details.get('styles', []))}</p>
+            <p><strong>Styles:</strong> {', '.join(details.get('styles', []))}</p
+        
         </body>
         </html>
         """
