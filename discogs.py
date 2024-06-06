@@ -39,7 +39,12 @@ metadata = {
         {"id": "/discogs/artist", "name": "Artist"},
         {"id": "/discogs/release", "name": "Release"},
         {"id": "/discogs/master", "name": "Master"},
-        {"id": "/discogs/label", "name": "Label"}
+        {"id": "/discogs/label", "name": "Label"},
+        {"id": "/discogs/track", "name": "Track"},
+        {"id": "/discogs/genre", "name": "Genre"},
+        {"id": "/discogs/style", "name": "Style"},
+        {"id": "/discogs/year", "name": "Year"},
+        {"id": "/discogs/catno", "name": "Catalog Number"}
     ],
     "view": {
         "url": "{{id}}"
@@ -128,6 +133,7 @@ def search(query, query_type='/discogs/artist'):
         name = item.get('title') if entity_type != 'artist' else item.get('name')
         discogs_id = item.get('id')
         discogs_uri = make_uri(entity_type, discogs_id)
+        catno = item.get('catno', 'N/A')
         score = fuzz.token_sort_ratio(query, name)
         if query.lower() == name.lower():
             match = True
@@ -137,7 +143,8 @@ def search(query, query_type='/discogs/artist'):
             "name": name,
             "score": score,
             "match": match,
-            "type": [{"id": query_type_meta["id"], "name": query_type_meta["name"]}]
+            "type": [{"id": query_type_meta["id"], "name": query_type_meta["name"]}],
+            "catno": catno
         }
         out.append(resource)
 
@@ -196,12 +203,16 @@ def preview(entity_type, discogs_id):
 
         label_info = details.get('labels', [])
         label_names = ', '.join([label['name'] for label in label_info])
+        catno = label_info[0]['catno'] if label_info and 'catno' in label_info[0] else 'N/A'
+        artist_names = ', '.join([artist['name'] for artist in details.get('artists', [])])
 
         preview_html = f"""
         <html>
         <body>
             <h1>{details.get('title', 'No Title')}</h1>
+            <p><strong>Artist:</strong> {artist_names}</p>
             <p><strong>Label:</strong> {label_names}</p>
+            <p><strong>Catalog Number:</strong> {catno}</p>
             <p><strong>Year:</strong> {details.get('year', 'Unknown')}</p>
             <p><strong>Genres:</strong> {', '.join(details.get('genres', []))}</p>
             <p><strong>Styles:</strong> {', '.join(details.get('styles', []))}</p>
