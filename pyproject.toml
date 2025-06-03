@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 88
+target-version = ['py313']
+include = '\.pyi?$'
+
+[tool.pyright]
+venv = "venv"
+venvPath = "."
+pythonVersion = "3.13"

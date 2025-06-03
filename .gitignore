@@ -1,1 +1,3 @@
 discogs_api_token
+/.env
+/__pycache__/
